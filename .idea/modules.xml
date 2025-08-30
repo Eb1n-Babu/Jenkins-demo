@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Simple Django Project with Docker and Jenkins CICD.iml" filepath="$PROJECT_DIR$/.idea/Simple Django Project with Docker and Jenkins CICD.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/django_project.iml" filepath="$PROJECT_DIR$/.idea/django_project.iml" />
     </modules>
   </component>
 </project>

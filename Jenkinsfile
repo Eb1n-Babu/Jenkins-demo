@@ -1,41 +1,45 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.13.3-slim'
-            args '-v $HOME/.cache:/root/.cache'
-        }
+    agent any
+
+    environment {
+        IMAGE_NAME = 'my-django-app:latest'
     }
+
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-        stage('Install Dependencies') {
-            steps {
-                sh 'pip install -r requirements.txt'
-            }
-        }
-        stage('Run Tests') {
-            steps {
-                sh 'python manage.py test'
-            }
-        }
+
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-django-app:latest .'
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
+
+        stage('Run Django Tests') {
+            steps {
+                sh '''
+                    docker run --rm --env-file .env $IMAGE_NAME sh -c "
+                        pip install -r requirements.txt &&
+                        python manage.py test
+                    "
+                '''
+            }
+        }
+
         stage('Deploy') {
             when {
                 branch 'main'
             }
             steps {
-                sh 'docker-compose down'
-                sh 'docker-compose up -d'
+                sh 'docker-compose --env-file .env down || true'
+                sh 'docker-compose --env-file .env up -d'
             }
         }
     }
+
     post {
         always {
             sh 'docker-compose down || true'
