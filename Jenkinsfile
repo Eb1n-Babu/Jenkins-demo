@@ -35,7 +35,6 @@ pipeline {
                             "
                         '''
                     } else {
-                        // Windows requires PowerShell or CMD syntax; CMD doesn't support multi-line like sh
                         bat '''
                             docker run --rm --env-file .env %IMAGE_NAME% cmd /c "pip install -r requirements.txt && python manage.py test"
                         '''
@@ -55,5 +54,22 @@ pipeline {
                         sh 'docker-compose --env-file .env up -d'
                     } else {
                         bat 'docker-compose --env-file .env down || exit 0'
-                        bat 'docker-compose --env-file .env up --
+                        bat 'docker-compose --env-file .env up -d'
+                    }
+                }
+            }
+        }
+    }
 
+    post {
+        always {
+            script {
+                if (isUnix()) {
+                    sh 'docker-compose down || true'
+                } else {
+                    bat 'docker-compose down || exit 0'
+                }
+            }
+        }
+    }
+}
