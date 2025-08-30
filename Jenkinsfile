@@ -14,18 +14,33 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                script {
+                    if (isUnix()) {
+                        sh 'docker build -t $IMAGE_NAME .'
+                    } else {
+                        bat 'docker build -t %IMAGE_NAME% .'
+                    }
+                }
             }
         }
 
         stage('Run Django Tests') {
             steps {
-                sh '''
-                    docker run --rm --env-file .env $IMAGE_NAME sh -c "
-                        pip install -r requirements.txt &&
-                        python manage.py test
-                    "
-                '''
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            docker run --rm --env-file .env $IMAGE_NAME sh -c "
+                                pip install -r requirements.txt &&
+                                python manage.py test
+                            "
+                        '''
+                    } else {
+                        // Windows requires PowerShell or CMD syntax; CMD doesn't support multi-line like sh
+                        bat '''
+                            docker run --rm --env-file .env %IMAGE_NAME% cmd /c "pip install -r requirements.txt && python manage.py test"
+                        '''
+                    }
+                }
             }
         }
 
@@ -34,15 +49,11 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh 'docker-compose --env-file .env down || true'
-                sh 'docker-compose --env-file .env up -d'
-            }
-        }
-    }
+                script {
+                    if (isUnix()) {
+                        sh 'docker-compose --env-file .env down || true'
+                        sh 'docker-compose --env-file .env up -d'
+                    } else {
+                        bat 'docker-compose --env-file .env down || exit 0'
+                        bat 'docker-compose --env-file .env up --
 
-    post {
-        always {
-            sh 'docker-compose down || true'
-        }
-    }
-}
