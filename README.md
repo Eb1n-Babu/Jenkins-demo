@@ -1,5 +1,9 @@
 Simple Django Project with Docker and Jenkins CI/CD
 
+
+**===============================FAILD====================================
++++++++++++++++++++++++++WILL COMPLETED  +++++++++++++++++++++++++++++++++++**
+
 This guide provides a basic Django project setup with Docker and a Jenkins pipeline for CI/CD. 
 The project includes a simple Django app, a Dockerfile for containerization, 
 and a Jenkinsfile for automated testing and deployment.
